@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class LoginController {
     @Autowired
     public UserRepository repo;
-    @Autowired
-    private Authentication authenticatorManger;
+    //@Autowired
+    //private Authentication authenticatorManger;
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO)
     {
-        //Nie dziala nie czaje springa
+        //Nie dziala nie czaje Zbytnio Spring Security
         //Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword()));
         // SecurityContextHolder.getContext().setAuthentication(authentication);
         return new ResponseEntity<>("User login successfully!...", HttpStatus.OK);
