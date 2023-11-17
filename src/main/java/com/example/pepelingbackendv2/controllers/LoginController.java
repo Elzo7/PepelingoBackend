@@ -5,8 +5,11 @@ import com.example.pepelingbackendv2.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,14 +21,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class LoginController {
     @Autowired
     public UserRepository repo;
-    //@Autowired
-    //private Authentication authenticatorManger;
+    @Autowired
+    private AuthenticationManager authenticatorManger;
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO)
     {
-        //Nie dziala nie czaje Zbytnio Spring Security
-        //Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword()));
-        // SecurityContextHolder.getContext().setAuthentication(authentication);
+        Authentication authentication = authenticatorManger.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getUsername(),loginDTO.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         return new ResponseEntity<>("User login successfully!...", HttpStatus.OK);
     }
 }
