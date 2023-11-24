@@ -5,6 +5,7 @@ import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.PublicKey;
@@ -18,20 +19,20 @@ public class JwtTokenProvider {
     private String jwtSecret;
     @Value("${app.jwtExpirationInMs}")
     private int jwtExpirationInMs;
-    public String generateToken(User user)
+    public String generateToken(UserDetails user)
     {
         Date now = new Date();
-        return Jwts.builder().setSubject(Long.toString(user.getId()))
+        return Jwts.builder().setSubject(user.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(now.getTime()+jwtExpirationInMs))
                 .signWith(SignatureAlgorithm.HS512,jwtSecret).compact();
     }
-    public Long getUserIdFrom(String token)
+    public String getUsernameFrom(String token)
     {
-        Claims claims =Jwts.parser()
+        return Jwts.parser()
                 .setSigningKey(jwtSecret)
-                .parseClaimsJws(token).getBody();
-        return Long.parseLong(claims.getSubject());
+                .parseClaimsJws(token).getBody()
+                .getSubject();
     }
     public boolean validateToken(String authToken)
     {
