@@ -1,5 +1,6 @@
 package com.example.pepelingbackendv2.controllers;
 
+import com.example.pepelingbackendv2.Responses.ErrorResponse;
 import com.example.pepelingbackendv2.Responses.LoginResponse;
 import com.example.pepelingbackendv2.Responses.RegistrationResponse;
 import com.example.pepelingbackendv2.configs.JwtTokenProvider;
@@ -23,6 +24,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 @Controller
@@ -37,36 +41,40 @@ public class RegistrationController {
     @Autowired
     private JwtTokenProvider tokenProvider;
     @PostMapping("/auth/signup")
-    public ResponseEntity<?> signup(@RequestBody SignUpDTO signUpDTO)
-    {
-        RegistrationResponse response = new RegistrationResponse();
+    public ResponseEntity<?> signup(@RequestBody SignUpDTO signUpDTO) throws InterruptedException {
+        ErrorResponse errorResponse = new ErrorResponse();
         Gson gson =new Gson();
+        List<String> errors = new ArrayList<String>();
         if (repo.existsByLogin(signUpDTO.getUsername()))
         {
-            response.setMessage("registerPage.errors.usernameIsUsed");
-            return new ResponseEntity<>(gson.toJson(response), HttpStatus.BAD_REQUEST);
+            errors.add("registerPage.errors.usernameIsUsed");
+            errorResponse.setError(true);
         }
         if (repo.existsByEmail(signUpDTO.getEmail()))
         {
-            response.setMessage("registerPage.errors.emailIsUsed");
-            return new ResponseEntity<>(gson.toJson(response),HttpStatus.BAD_REQUEST);
+            errors.add("registerPage.errors.emailIsUsed");
+            errorResponse.setError(true);
         }
         if (!isValidEmail(signUpDTO.getEmail()))
         {
-            response.setMessage("registerPage.errors.wrongEmail");
-            return new ResponseEntity<>(gson.toJson(response),HttpStatus.BAD_REQUEST);
+            errors.add("registerPage.errors.wrongEmail");
+            errorResponse.setError(true);
+        }
+        if(errorResponse.isError())
+        {
+            errorResponse.setMessages(errors);
+            return new ResponseEntity<>(gson.toJson(errorResponse), HttpStatus.OK);
         }
         LoginResponse responseSuccess = new LoginResponse();
         User user =new User();
         user.setEmail(signUpDTO.getEmail());
         user.setLogin(signUpDTO.getUsername());
         user.setEmail(signUpDTO.getEmail());
-        String old_password=user.getPassword();
         user.setPassword(passwordEncoder.encode(signUpDTO.getPassword()));
         repo.save(user);
         responseSuccess.setMessage("User is registered successfully!");
         responseSuccess.setUser_id(user.getId());
-        Authentication authentication = authenticatorManger.authenticate(new UsernamePasswordAuthenticationToken(user.getLogin(),old_password));
+        Authentication authentication = authenticatorManger.authenticate(new UsernamePasswordAuthenticationToken(user.getLogin(),signUpDTO.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken((UserDetails) authentication.getPrincipal());
         responseSuccess.setJwt(jwt);

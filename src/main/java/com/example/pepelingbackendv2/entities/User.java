@@ -25,6 +25,15 @@ public class User {
     private String email;
     @OneToMany(mappedBy = "user")
     private Set<UserTask> userTaskSet;
+
+    public Set<UserTask> getUserTaskSet() {
+        return userTaskSet;
+    }
+
+    public void setUserTaskSet(Set<UserTask> userTaskSet) {
+        this.userTaskSet = userTaskSet;
+    }
+
     public long getId() {
         return id;
     }
