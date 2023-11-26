@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.NaturalId;
 
+import java.util.Set;
+
 @Entity
 @Table(name  ="users")
 public class User {
@@ -21,7 +23,8 @@ public class User {
     @NaturalId
     @Email
     private String email;
-
+    @OneToMany(mappedBy = "user")
+    private Set<UserTask> userTaskSet;
     public long getId() {
         return id;
     }
