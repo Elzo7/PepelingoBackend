@@ -9,5 +9,4 @@ public class PepelingBackendV2Application {
     public static void main(String[] args) {
         SpringApplication.run(PepelingBackendV2Application.class, args);
     }
-
 }
