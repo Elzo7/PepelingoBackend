@@ -74,6 +74,7 @@ public class RegistrationController {
         repo.save(user);
         responseSuccess.setMessage("User is registered successfully!");
         responseSuccess.setUser_id(user.getId());
+        responseSuccess.setEmail(user.getEmail());
         Authentication authentication = authenticatorManger.authenticate(new UsernamePasswordAuthenticationToken(user.getLogin(),signUpDTO.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken((UserDetails) authentication.getPrincipal());

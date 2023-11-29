@@ -45,6 +45,7 @@ public class LoginController {
         response.setJwt(jwt);
         User user=repo.findByLogin(loginDTO.getUsername());
         response.setUser_id(user.getId());
+        response.setEmail(user.getEmail());
         Gson gson = new Gson();
         return new ResponseEntity<>(gson.toJson(response), HttpStatus.OK);
     }
