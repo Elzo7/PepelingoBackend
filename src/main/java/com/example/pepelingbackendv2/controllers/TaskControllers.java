@@ -76,5 +76,4 @@ public class TaskControllers {
         response.setCompleted(userTask.isCompleted());
         return new ResponseEntity(gson.toJson(response), HttpStatus.OK);
     }
-
 }
