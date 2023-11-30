@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -144,5 +145,49 @@ public class TaskControllers {
         allTasksResponse.setMessage("Poprawnie pobrano tabele zadan");
         System.out.println(tasksResponse.size());
         return new ResponseEntity(gson.toJson(allTasksResponse), HttpStatus.OK);
+    }
+    @PostMapping("/api/task")
+    public ResponseEntity<?> setTaskCompletion(@RequestBody TaskDTO taskDTO)
+    {
+        Gson gson = new Gson();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            RegistrationResponse response = new RegistrationResponse();
+            response.setError(true);
+            response.setMessage("User not authenticated");
+            return new ResponseEntity(gson.toJson(response), HttpStatus.UNAUTHORIZED);
+        }
+        if(!userRepo.existsById(taskDTO.getUser_id()))
+        {
+            RegistrationResponse response = new RegistrationResponse();
+            response.setError(true);
+            response.setMessage("Podany uzytkownik nie istnieje");
+            return new ResponseEntity(gson.toJson(response),HttpStatus.BAD_REQUEST);
+        }
+        if(!taskRepo.existsById(taskDTO.getTask_id()))
+        {
+            RegistrationResponse response = new RegistrationResponse();
+            response.setError(true);
+            response.setMessage("Podane zadanie nie istnieje");
+            return new ResponseEntity(gson.toJson(response),HttpStatus.BAD_REQUEST);
+        }
+        User user= userRepo.findById(taskDTO.getUser_id()).get();
+        Task task = taskRepo.findById(taskDTO.getTask_id()).get();
+        UserTask userTask;
+        if(!userTaskRepo.existsByUserAndTask(user,task))
+        {
+            RegistrationResponse response = new RegistrationResponse();
+            response.setError(true);
+            response.setMessage("Uzytkownik nie pobral danego zadania");
+            return new ResponseEntity(gson.toJson(response),HttpStatus.BAD_REQUEST);
+        }
+        else
+        {
+            userTask =userTaskRepo.findByUserAndTask(user,task);
+        }
+        userTaskRepo.save(userTask);
+        RegistrationResponse response = new RegistrationResponse();
+        response.setMessage("Poprawnie ustawiono zadanie jako ukonczone");
+        return new ResponseEntity<>(gson.toJson(response),HttpStatus.OK;
     }
 }
