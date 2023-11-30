@@ -188,6 +188,6 @@ public class TaskControllers {
         userTaskRepo.save(userTask);
         RegistrationResponse response = new RegistrationResponse();
         response.setMessage("Poprawnie ustawiono zadanie jako ukonczone");
-        return new ResponseEntity<>(gson.toJson(response),HttpStatus.OK;
+        return new ResponseEntity<>(gson.toJson(response),HttpStatus.OK);
     }
 }
