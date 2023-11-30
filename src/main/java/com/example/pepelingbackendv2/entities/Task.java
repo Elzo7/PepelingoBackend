@@ -22,6 +22,17 @@ public class Task {
     private String answer;
     @Column
     private String type;
+    @Column
+    private String difficulty;
+
+    public String getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(String difficulty) {
+        this.difficulty = difficulty;
+    }
+
     @ManyToOne
     @JoinColumn(name = "course_id",referencedColumnName = "id",nullable = false)
     private Course course;

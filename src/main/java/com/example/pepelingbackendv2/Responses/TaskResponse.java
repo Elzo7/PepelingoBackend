@@ -10,6 +10,16 @@ public class TaskResponse {
     private String type;
     private boolean isCompleted;
 
+    public String getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(String difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    private String difficulty;
+
     public long getId() {
         return id;
     }
