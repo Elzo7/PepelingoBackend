@@ -5,8 +5,12 @@ import com.example.pepelingbackendv2.Responses.LoginResponse;
 import com.example.pepelingbackendv2.Responses.RegistrationResponse;
 import com.example.pepelingbackendv2.configs.JwtTokenProvider;
 import com.example.pepelingbackendv2.entities.SignUpDTO;
+import com.example.pepelingbackendv2.entities.Task;
 import com.example.pepelingbackendv2.entities.User;
+import com.example.pepelingbackendv2.entities.UserTask;
+import com.example.pepelingbackendv2.repositories.TaskRepository;
 import com.example.pepelingbackendv2.repositories.UserRepository;
+import com.example.pepelingbackendv2.repositories.UserTaskRepository;
 import com.google.gson.Gson;
 import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +38,10 @@ import java.util.regex.Pattern;
 public class RegistrationController {
     @Autowired
     public UserRepository repo;
+    @Autowired
+    public TaskRepository taskRepo;
+    @Autowired
+    public UserTaskRepository userTaskRepo;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -72,6 +80,16 @@ public class RegistrationController {
         user.setEmail(signUpDTO.getEmail());
         user.setPassword(passwordEncoder.encode(signUpDTO.getPassword()));
         repo.save(user);
+        List<Task> tasks = (List<Task>) taskRepo.findAll();
+        for (Task task: tasks)
+        {
+            UserTask userTask;
+            if(!userTaskRepo.existsByUserAndTask(user,task))
+            {
+                userTask = new UserTask(user, task, false);
+                userTaskRepo.save(userTask);
+            }
+        }
         responseSuccess.setMessage("User is registered successfully!");
         responseSuccess.setUser_id(user.getId());
         responseSuccess.setEmail(user.getEmail());

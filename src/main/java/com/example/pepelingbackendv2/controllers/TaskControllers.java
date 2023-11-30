@@ -9,11 +9,9 @@ import com.example.pepelingbackendv2.repositories.TaskRepository;
 import com.example.pepelingbackendv2.repositories.UserRepository;
 import com.example.pepelingbackendv2.repositories.UserTaskRepository;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -22,10 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 @CrossOrigin("*")
@@ -137,7 +132,19 @@ public class TaskControllers {
             taskResponse.setQuestion(task.getQuestion());
             taskResponse.setPictureUrl(task.getPictureUrl());
             taskResponse.setType(task.getType());
-            taskResponse.setAnswer(task.getAnswer());
+            System.out.println(task.getType());
+            if(task.getType().equals("radius"))
+            {
+                List<String> answers = List.of(task.getAnswer().split(";"));
+                System.out.println(answers);
+                taskResponse.setPossible_answer(answers);
+                taskResponse.setAnswer(answers.get(0));
+            }
+            else
+            {
+                taskResponse.setAnswer(task.getAnswer());
+            }
+
             taskResponse.setDifficulty(task.getDifficulty());
             tasksResponse.add(taskResponse);
         }
@@ -189,5 +196,107 @@ public class TaskControllers {
         RegistrationResponse response = new RegistrationResponse();
         response.setMessage("Poprawnie ustawiono zadanie jako ukonczone");
         return new ResponseEntity<>(gson.toJson(response),HttpStatus.OK);
+    }
+    @RequestMapping("/api/course")
+    public ResponseEntity<?> getCourseProgres(@RequestBody CourseDTO courseDTO)
+    {
+        Gson gson = new Gson();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            RegistrationResponse response = new RegistrationResponse();
+            response.setError(true);
+            response.setMessage("User not authenticated");
+            return new ResponseEntity(gson.toJson(response), HttpStatus.UNAUTHORIZED);
+        }
+        if(!userRepo.existsById(courseDTO.getUser_id()))
+        {
+            RegistrationResponse response = new RegistrationResponse();
+            response.setError(true);
+            response.setMessage("Podany uzytkownik nie istnieje");
+            return new ResponseEntity(gson.toJson(response),HttpStatus.BAD_REQUEST);
+        }
+        User user = userRepo.findById(courseDTO.getUser_id()).get();
+        Course course = courseRepository.findById(courseDTO.getCourse_id()).get();
+        Set<UserTask> userTasks=user.getUserTaskSet();
+        Map<String, Map<String, Map<String, Integer>>> progressMap = new HashMap<>();
+        for (UserTask userTask : userTasks) {
+            Task task = userTask.getTask();
+            if (task.getCourse().equals(course)) {
+                String difficulty = task.getDifficulty();
+                String type = task.getType();
+                progressMap.computeIfAbsent(difficulty, k -> new HashMap<>());
+                progressMap.get(difficulty).computeIfAbsent(type, k -> new HashMap<>());
+                progressMap.get(difficulty).get(type).merge("completed", userTask.isCompleted() ? 1 : 0, Integer::sum);
+                progressMap.get(difficulty).get(type).merge("total", 1, Integer::sum);
+
+            }
+        }
+        System.out.println(progressMap);
+        Map<String, Map<String, Map<String, Double>>> completionPercentageMap = new HashMap<>();
+
+        progressMap.forEach((difficulty, typeMap) -> {
+            completionPercentageMap.put(difficulty, new HashMap<>());
+
+            typeMap.forEach((type, taskMap) -> {
+                int completedTasks = (int) taskMap.get("completed");
+                int totalTasks = (int) taskMap.get("total");
+
+                double completionPercentage = totalTasks > 0 ? ((double) completedTasks / totalTasks) * 100 : 0;
+                completionPercentageMap.get(difficulty).put(type, Map.of("completed", (double)completedTasks, "total",(double) totalTasks, "completionPercentage",   Math.round(completionPercentage*100.)/100.));
+            });
+        });
+        return new ResponseEntity(completionPercentageMap, HttpStatus.OK);
+    }
+    @RequestMapping("/api/course/all")
+    public ResponseEntity<?> getAllCoursesProgres(@RequestBody AllCourseDTO allCourseDTO)
+    {
+        Gson gson = new Gson();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            RegistrationResponse response = new RegistrationResponse();
+            response.setError(true);
+            response.setMessage("User not authenticated");
+            return new ResponseEntity(gson.toJson(response), HttpStatus.UNAUTHORIZED);
+        }
+        if(!userRepo.existsById(allCourseDTO.getUser_id()))
+        {
+            RegistrationResponse response = new RegistrationResponse();
+            response.setError(true);
+            response.setMessage("Podany uzytkownik nie istnieje");
+            return new ResponseEntity(gson.toJson(response),HttpStatus.BAD_REQUEST);
+        }
+        User user = userRepo.findById(allCourseDTO.getUser_id()).get();
+        Set<UserTask> userTasks=user.getUserTaskSet();
+        Map<String, Map<String, Map<String, Map<String, Integer>>>> courseProgressMap = new HashMap<>();
+        for (UserTask userTask: userTasks)
+        {
+            Task task = userTask.getTask();
+            Course course = task.getCourse();
+            String courseId = course.getName();
+            String difficulty = task.getDifficulty();
+            String type = task.getType();
+            courseProgressMap.computeIfAbsent(courseId, k -> new HashMap<>());
+            courseProgressMap.get(courseId).computeIfAbsent(difficulty, k -> new HashMap<>());
+            courseProgressMap.get(courseId).get(difficulty).computeIfAbsent(type, k -> new HashMap<>());
+            courseProgressMap.get(courseId).get(difficulty).get(type).merge("completed", userTask.isCompleted() ? 1 : 0, Integer::sum);
+            courseProgressMap.get(courseId).get(difficulty).get(type).merge("total", 1, Integer::sum);
+        }
+        Map<String, Map<String, Map<String, Map<String, Double>>>> courseCompletionPercentageMap = new HashMap<>();
+
+        courseProgressMap.forEach((courseId, progressMap) -> {
+            courseCompletionPercentageMap.put(courseId, new HashMap<>());
+
+            progressMap.forEach((difficulty, typeMap) -> {
+                typeMap.forEach((type, taskMap) -> {
+                    int completedTasks = taskMap.get("completed");
+                    int totalTasks =  taskMap.get("total");
+
+                    double completionPercentage = totalTasks > 0 ? ((double) completedTasks / totalTasks) * 100 : 0;
+                    courseCompletionPercentageMap.get(courseId).put(difficulty, Map.of(type, Map.<String, Double>of("completed",(double) completedTasks, "total",(double) totalTasks, "completionPercentage",Math.round(completionPercentage*100.)/100.)));
+                });
+            });
+        });
+        return new ResponseEntity(gson.toJson(courseCompletionPercentageMap), HttpStatus.OK);
+
     }
 }

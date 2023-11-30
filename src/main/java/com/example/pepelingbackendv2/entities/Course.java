@@ -11,7 +11,7 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column
-    private long name;
+    private String name;
     @OneToMany(mappedBy = "course")
     private Set<Task> tasks;
 
@@ -23,11 +23,11 @@ public class Course {
         this.id = id;
     }
 
-    public long getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(long name) {
+    public void setName(String name) {
         this.name = name;
     }
 

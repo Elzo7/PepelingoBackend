@@ -2,6 +2,8 @@ package com.example.pepelingbackendv2.Responses;
 
 import jakarta.persistence.Column;
 
+import java.util.List;
+
 public class TaskResponse {
     private long id;
     private String pictureUrl;
@@ -9,6 +11,15 @@ public class TaskResponse {
     private String answer;
     private String type;
     private boolean isCompleted;
+    private List<String> possible_answer;
+
+    public List<String> getPossible_answer() {
+        return possible_answer;
+    }
+
+    public void setPossible_answer(List<String> possible_answer) {
+        this.possible_answer = possible_answer;
+    }
 
     public String getDifficulty() {
         return difficulty;
