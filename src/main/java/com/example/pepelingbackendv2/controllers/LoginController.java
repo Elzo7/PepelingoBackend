@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
 import java.awt.*;
 @CrossOrigin("*")
-@Controller
+@RestController
 public class LoginController {
     @Autowired
     public UserRepository repo;
