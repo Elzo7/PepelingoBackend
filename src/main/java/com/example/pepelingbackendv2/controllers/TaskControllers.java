@@ -96,14 +96,14 @@ public class TaskControllers {
             return new ResponseEntity(gson.toJson(response),HttpStatus.BAD_REQUEST);
         }
         User user = userRepo.findById(allTaskDTO.getUser_id()).get();
-        if(!courseRepository.existsById(allTaskDTO.getCourse_id()))
+        if(!courseRepository.existsByName(allTaskDTO.getCourse_name()))
         {
             RegistrationResponse response = new RegistrationResponse();
             response.setError(true);
             response.setMessage("Podany kurs nie istnieje");
             return new ResponseEntity(gson.toJson(response),HttpStatus.BAD_REQUEST);
         }
-        Course course = courseRepository.findById(allTaskDTO.getCourse_id()).get();
+        Course course = courseRepository.findByName(allTaskDTO.getCourse_name());
         List<Task> tasks = taskRepo.findAllByCourseAndDifficulty(course, allTaskDTO.getDifficulty());
         if(tasks.size() == 0)
         {
