@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.*;
 
 @Controller
-@CrossOrigin("*")
+@CrossOrigin(origins="*")
 public class TaskControllers {
     @Autowired
     private UserRepository userRepo;
