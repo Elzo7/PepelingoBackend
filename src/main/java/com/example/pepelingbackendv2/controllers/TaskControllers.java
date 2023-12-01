@@ -33,7 +33,7 @@ public class TaskControllers {
     private CourseRepository courseRepository;
     @Autowired
     private UserTaskRepository userTaskRepo;
-    @RequestMapping("/api/task/id")
+    @PostMapping("/api/task/id")
     public ResponseEntity<?> getTaskById(@RequestBody TaskDTO taskDTO)
     {
         Gson gson = new Gson();
@@ -77,7 +77,7 @@ public class TaskControllers {
         response.setCompleted(userTask.isCompleted());
         return new ResponseEntity(gson.toJson(response), HttpStatus.OK);
     }
-    @RequestMapping("/api/tasks")
+    @PostMapping("/api/tasks")
     public ResponseEntity<?> getAllTaskByID(@RequestBody AllTaskDTO allTaskDTO)
     {
         Gson gson = new Gson();
@@ -153,7 +153,7 @@ public class TaskControllers {
         System.out.println(tasksResponse.size());
         return new ResponseEntity(gson.toJson(allTasksResponse), HttpStatus.OK);
     }
-    @PostMapping("/api/task")
+    @PostMapping("/api/task/complete")
     public ResponseEntity<?> setTaskCompletion(@RequestBody TaskDTO taskDTO)
     {
         Gson gson = new Gson();
@@ -197,7 +197,7 @@ public class TaskControllers {
         response.setMessage("Poprawnie ustawiono zadanie jako ukonczone");
         return new ResponseEntity<>(gson.toJson(response),HttpStatus.OK);
     }
-    @RequestMapping("/api/course")
+    @PostMapping("/api/course")
     public ResponseEntity<?> getCourseProgres(@RequestBody CourseDTO courseDTO)
     {
         Gson gson = new Gson();
@@ -247,7 +247,7 @@ public class TaskControllers {
         });
         return new ResponseEntity(completionPercentageMap, HttpStatus.OK);
     }
-    @RequestMapping("/api/course/all")
+    @PostMapping("/api/course/all")
     public ResponseEntity<?> getAllCoursesProgres(@RequestBody AllCourseDTO allCourseDTO)
     {
         Gson gson = new Gson();
