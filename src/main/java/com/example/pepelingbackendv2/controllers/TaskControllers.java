@@ -216,7 +216,7 @@ public class TaskControllers {
             return new ResponseEntity(gson.toJson(response),HttpStatus.BAD_REQUEST);
         }
         User user = userRepo.findById(courseDTO.getUser_id()).get();
-        Course course = courseRepository.findById(courseDTO.getCourse_id()).get();
+        Course course = courseRepository.findByName(courseDTO.getCourse_name());
         Set<UserTask> userTasks=user.getUserTaskSet();
         Map<String, Map<String, Map<String, Integer>>> progressMap = new HashMap<>();
         for (UserTask userTask : userTasks) {
