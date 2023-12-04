@@ -20,8 +20,8 @@
             RegistrationResponse response1 = new RegistrationResponse();
             response1.setError(true);
             response1.setMessage("loginPage.errors.wrongData");
+            System.out.print(authException.getMessage());
             Gson gson =new Gson();
-
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             PrintWriter out = response.getWriter();
             out.write(gson.toJson(response1));
