@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +29,7 @@ public class UserController {
     private AuthenticationManager authenticatorManger;
     @Autowired
     private JwtTokenProvider tokenProvider;
-    @PostMapping("/api/changeUser")
+    @PostMapping("/api/changePassword")
     public ResponseEntity<?> changePassword(@RequestBody UserDTO userDTO)
     {
         Gson gson = new Gson();
@@ -43,10 +44,18 @@ public class UserController {
         {
             RegistrationResponse response = new RegistrationResponse();
             response.setMessage("Podany uzytkownik nie istnieje");
+            response.setError(true);
             return new ResponseEntity(gson.toJson(response),HttpStatus.BAD_REQUEST);
         }
         User user = repo.findById(userDTO.getId()).get();
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        if(user.getPassword() != userDTO.getOldPassword())
+        {
+            RegistrationResponse response = new RegistrationResponse();
+            response.setMessage("Podano zle stare haslo");
+            response.setError(true);
+            return new ResponseEntity(gson.toJson(response),HttpStatus.BAD_REQUEST);
+        }
+        user.setPassword(passwordEncoder.encode(userDTO.getNewPassword()));
         repo.save(user);
         RegistrationResponse response = new RegistrationResponse();
         response.setMessage("Haslo poprawnie zmienione");
