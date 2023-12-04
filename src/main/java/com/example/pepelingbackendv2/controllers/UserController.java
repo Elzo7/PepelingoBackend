@@ -45,7 +45,7 @@ public class UserController {
             return new ResponseEntity(gson.toJson(response),HttpStatus.BAD_REQUEST);
         }
         User user = repo.findById(userDTO.getId()).get();
-        if(passwordEncoder.encode(user.getPassword()) != userDTO.getOldPassword())
+        if(!passwordEncoder.matches(userDTO.getOldPassword(),user.getPassword()))
         {
             RegistrationResponse response = new RegistrationResponse();
             response.setMessage("Podano zle stare haslo");
