@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@CrossOrigin("*")
+@CrossOrigin(originPatterns = "*", maxAge = 3600)
 public class TaskControllers {
     @Autowired
     private UserRepository userRepo;
@@ -150,6 +150,7 @@ public class TaskControllers {
         System.out.println(tasksResponse.size());
         return new ResponseEntity(gson.toJson(allTasksResponse), HttpStatus.OK);
     }
+    @CrossOrigin(originPatterns = "*", maxAge = 3600)
     @PostMapping("/api/task/complete")
     public ResponseEntity<?> setTaskCompletion(@RequestBody TaskDTO taskDTO)
     {
@@ -194,6 +195,8 @@ public class TaskControllers {
         response.setMessage("Poprawnie ustawiono zadanie jako ukonczone");
         return new ResponseEntity<>(gson.toJson(response),HttpStatus.OK);
     }
+    @CrossOrigin(originPatterns = "*", maxAge = 3600)
+
     @PostMapping("/api/course")
     public ResponseEntity<?> getCourseProgres(@RequestBody CourseDTO courseDTO)
     {
@@ -244,6 +247,7 @@ public class TaskControllers {
         });
         return new ResponseEntity(completionPercentageMap, HttpStatus.OK);
     }
+    @CrossOrigin(originPatterns = "*", maxAge = 3600)
     @PostMapping("/api/course/all")
     public ResponseEntity<?> getAllCoursesProgres(@RequestBody AllCourseDTO allCourseDTO)
     {
