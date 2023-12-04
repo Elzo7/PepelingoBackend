@@ -12,7 +12,7 @@ public class Course {
     private long id;
     @Column
     private String name;
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course",cascade = CascadeType.REMOVE)
     private Set<Task> tasks;
 
     public long getId() {

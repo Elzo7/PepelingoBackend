@@ -23,7 +23,7 @@ public class User {
     @NaturalId
     @Email
     private String email;
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",cascade = CascadeType.REMOVE)
     private Set<UserTask> userTaskSet;
 
     public Set<UserTask> getUserTaskSet() {

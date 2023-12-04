@@ -36,7 +36,7 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "course_id",referencedColumnName = "id",nullable = false)
     private Course course;
-    @OneToMany(mappedBy = "task")
+    @OneToMany(mappedBy = "task",cascade = CascadeType.REMOVE)
     private Set<UserTask> tasks;
 
     public long getId() {
