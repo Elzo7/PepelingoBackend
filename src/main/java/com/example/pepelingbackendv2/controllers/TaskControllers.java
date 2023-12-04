@@ -190,6 +190,7 @@ public class TaskControllers {
         {
             userTask =userTaskRepo.findByUserAndTask(user,task);
         }
+        userTask.setCompleted(true);
         userTaskRepo.save(userTask);
         RegistrationResponse response = new RegistrationResponse();
         response.setMessage("Poprawnie ustawiono zadanie jako ukonczone");
