@@ -14,10 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class UserController {
@@ -61,7 +58,7 @@ public class UserController {
         response.setMessage("Haslo poprawnie zmienione");
         return new ResponseEntity(gson.toJson(response),HttpStatus.OK);
     }
-    @PostMapping("/api/deleteUser/{id}")
+    @DeleteMapping("/api/deleteUser/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable long id)
     {
         Gson gson = new Gson();
