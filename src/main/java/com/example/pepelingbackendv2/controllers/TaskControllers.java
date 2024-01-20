@@ -249,7 +249,7 @@ public class TaskControllers {
         return new ResponseEntity(completionPercentageMap, HttpStatus.OK);
     }
     @CrossOrigin(originPatterns = "*", maxAge = 3600)
-    @PostMapping("/api/course/all")
+    @PostMapping("/api/course/all") 
     public ResponseEntity<?> getAllCoursesProgres(@RequestBody AllCourseDTO allCourseDTO)
     {
         Gson gson = new Gson();
@@ -269,36 +269,41 @@ public class TaskControllers {
         }
         User user = userRepo.findById(allCourseDTO.getUser_id()).get();
         Set<UserTask> userTasks=user.getUserTaskSet();
-        Map<String, Map<String, Map<String, Map<String, Integer>>>> courseProgressMap = new HashMap<>();
+        Map<String, Map<String, Map<String, Map<String, Double>>>> courseProgressMap = new HashMap<>();
         for (UserTask userTask: userTasks)
         {
             Task task = userTask.getTask();
             Course course = task.getCourse();
+            System.out.println(task.getDifficulty()+" " +task.getType());
             String courseId = course.getName();
             String difficulty = task.getDifficulty();
             String type = task.getType();
             courseProgressMap.computeIfAbsent(courseId, k -> new HashMap<>());
             courseProgressMap.get(courseId).computeIfAbsent(difficulty, k -> new HashMap<>());
             courseProgressMap.get(courseId).get(difficulty).computeIfAbsent(type, k -> new HashMap<>());
-            courseProgressMap.get(courseId).get(difficulty).get(type).merge("completed", userTask.isCompleted() ? 1 : 0, Integer::sum);
-            courseProgressMap.get(courseId).get(difficulty).get(type).merge("total", 1, Integer::sum);
+            courseProgressMap.get(courseId).get(difficulty).get(type).merge("completed", userTask.isCompleted() ? 1. : 0., Double::sum);
+            courseProgressMap.get(courseId).get(difficulty).get(type).merge("total", 1., Double::sum);
+            double total = courseProgressMap.get(courseId).get(difficulty).get(type).get("total");
+            double comleted = courseProgressMap.get(courseId).get(difficulty).get(type).get("completed");
+            courseProgressMap.get(courseId).get(difficulty).get(type).put("completionPercentage",comleted/total);
         }
         Map<String, Map<String, Map<String, Map<String, Double>>>> courseCompletionPercentageMap = new HashMap<>();
-
+        /*System.out.println(courseProgressMap);
         courseProgressMap.forEach((courseId, progressMap) -> {
             courseCompletionPercentageMap.put(courseId, new HashMap<>());
 
             progressMap.forEach((difficulty, typeMap) -> {
                 typeMap.forEach((type, taskMap) -> {
-                    int completedTasks = taskMap.get("completed");
-                    int totalTasks =  taskMap.get("total");
+                    double completedTasks = taskMap.get("completed");
+                    double totalTasks =  taskMap.get("total");
 
                     double completionPercentage = totalTasks > 0 ? ((double) completedTasks / totalTasks) * 100 : 0;
                     courseCompletionPercentageMap.get(courseId).put(difficulty, Map.of(type, Map.<String, Double>of("completed",(double) completedTasks, "total",(double) totalTasks, "completionPercentage",Math.round(completionPercentage*100.)/100.)));
                 });
             });
         });
-        return new ResponseEntity(gson.toJson(courseCompletionPercentageMap), HttpStatus.OK);
+        System.out.println(courseCompletionPercentageMap);*/
+        return new ResponseEntity(gson.toJson(courseProgressMap), HttpStatus.OK);
 
     }
 }
