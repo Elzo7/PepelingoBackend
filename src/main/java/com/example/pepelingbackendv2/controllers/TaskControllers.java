@@ -285,7 +285,7 @@ public class TaskControllers {
             courseProgressMap.get(courseId).get(difficulty).get(type).merge("total", 1., Double::sum);
             double total = courseProgressMap.get(courseId).get(difficulty).get(type).get("total");
             double comleted = courseProgressMap.get(courseId).get(difficulty).get(type).get("completed");
-            courseProgressMap.get(courseId).get(difficulty).get(type).put("completionPercentage",comleted/total);
+            courseProgressMap.get(courseId).get(difficulty).get(type).put("completionPercentage",comleted/total*100);
         }
         Map<String, Map<String, Map<String, Map<String, Double>>>> courseCompletionPercentageMap = new HashMap<>();
         /*System.out.println(courseProgressMap);
